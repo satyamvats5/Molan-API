@@ -62,7 +62,7 @@ def signup(req_data):
     # New entry to the table
     add_data = {
             "username": req_data["username"],
-            "password": pw_hash,
+            "password": str(pw_hash),
             "loggedIn": True,
             "cache":    []
     }

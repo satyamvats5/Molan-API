@@ -21,9 +21,6 @@ from flask import Flask
 from flask_bcrypt import Bcrypt
 
 def login(req_data):
-    app = Flask(__name__)
-    bcrypt = Bcrypt(app)
-
     # Validate data received
     if not all(x in [ "username", "password" ] for x in req_data.keys()):
         res_data = {
@@ -44,12 +41,15 @@ def login(req_data):
         }
         return res_data, 200
 
+    app = Flask(__name__)
+    bcrypt = Bcrypt(app)
+
     # Load Database
     db = DatabaseHelper()
     data = db.load()
     for user in data :
         if user["username"] == req_data["username"] :
-            pw_hash = user["password"]
+            pw_hash = bytes(user["password"])
             if bcrypt.check_password_hash(pw_hash, req_data["password"]) == True:
                 user["loggedIn"] = True
                 res_data = {
@@ -57,7 +57,7 @@ def login(req_data):
                         "error" :   None,
                         "username": user["username"],
                         "cache":    user["cache"]
-                    }
+                }
                 db.save(data)
                 db.commit()
                 return res_data, 200
